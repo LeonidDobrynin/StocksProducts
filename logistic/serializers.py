@@ -32,7 +32,7 @@ class StockSerializer(serializers.ModelSerializer):
     positions = ProductPositionSerializer(many=True)
     class Meta:
         model = Stock
-        fields = ['address','positions']
+        fields = ['id','address','positions']
     # настройте сериализатор для склада
 
     def create(self, validated_data):
@@ -56,10 +56,15 @@ class StockSerializer(serializers.ModelSerializer):
 
         # обновляем склад по его параметрам
         stock = super().update(instance, validated_data)
-        print(positions)
+
 
         for position in positions:
-            StockProduct.objects.update(**position)
+            i = position['product']
+            print()
+            # filtration = StockProduct.objects.get(product=i.id)
+            # print(filtration)
+            filtred = StockProduct.objects.filter(stock=stock, product=Product.objects.get(id=i.id), )
+            filtred.update( quantity=position['quantity'], price=position['price'])
 
         # здесь вам надо обновить связанные таблицы
         # в нашем случае: таблицу StockProduct
